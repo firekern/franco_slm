@@ -1,61 +1,18 @@
-# franco
+# Franco a SLM for italian 
 
-<a target="_blank" href="https://cookiecutter-data-science.drivendata.org/">
-    <img src="https://img.shields.io/badge/CCDS-Project%20template-328F97?logo=cookiecutter" />
-</a>
+My first slm, in honor to Francesco Damiano di Gregorio (FDDG) one of the craziest people that I know.
 
-My first slm, in honor to francesco damiano di gregorio one of the craziest person that I know.
+\[30/03/2026\]: 
 
-## Project Organization
+Let's start with [nanoGPT](https://github.com/karpathy/nanoGPT/tree/master/data). It is a beautiful repository by Andrej Karpathy, so I'm going to "steal" some parts of the project. I don't want to copy its format, but it is a solid start. 
 
-```
-├── LICENSE            <- Open-source license if one is chosen
-├── Makefile           <- Makefile with convenience commands like `make data` or `make train`
-├── README.md          <- The top-level README for developers using this project.
-├── data
-│   ├── external       <- Data from third party sources.
-│   ├── interim        <- Intermediate data that has been transformed.
-│   ├── processed      <- The final, canonical data sets for modeling.
-│   └── raw            <- The original, immutable data dump.
-│
-├── docs               <- A default mkdocs project; see www.mkdocs.org for details
-│
-├── models             <- Trained and serialized models, model predictions, or model summaries
-│
-├── notebooks          <- Jupyter notebooks. Naming convention is a number (for ordering),
-│                         the creator's initials, and a short `-` delimited description, e.g.
-│                         `1.0-jqp-initial-data-exploration`.
-│
-├── pyproject.toml     <- Project configuration file with package metadata for 
-│                         src and configuration for tools like black
-│
-├── references         <- Data dictionaries, manuals, and all other explanatory materials.
-│
-├── reports            <- Generated analysis as HTML, PDF, LaTeX, etc.
-│   └── figures        <- Generated graphics and figures to be used in reporting
-│
-├── requirements.txt   <- The requirements file for reproducing the analysis environment, e.g.
-│                         generated with `pip freeze > requirements.txt`
-│
-├── setup.cfg          <- Configuration file for flake8
-│
-└── src   <- Source code for use in this project.
-    │
-    ├── __init__.py             <- Makes src a Python module
-    │
-    ├── config.py               <- Store useful variables and configuration
-    │
-    ├── dataset.py              <- Scripts to download or generate data
-    │
-    ├── features.py             <- Code to create features for modeling
-    │
-    ├── modeling                
-    │   ├── __init__.py 
-    │   ├── predict.py          <- Code to run model inference with trained models          
-    │   └── train.py            <- Code to train models
-    │
-    └── plots.py                <- Code to create visualizations
-```
+For now, my idea is to create a family of models that are specialized in Italian but with an _exotic_ attention function. 
 
---------
+I need to decide which datasets I am going to use.
+A possible solution is using [Kenji-endo](https://apa.dipsco.unitn.it/evalita2026/36.pdf), For now I'm uncertain about the corpus that they fed into the model. 
 
+> Btw throughout this adventure, I'm going to talk a lot about Kenji-endo, So Give it a read.
+
+Another Idea is to use TinyStories but translated in italian ... Does it have a sense? bho... but I think, it's the faster way to create a SLM that can talk.
+
+[piccole-storie](https://huggingface.co/datasets/markod0925/TinyStories-Italian) ok there is someone that has done it.

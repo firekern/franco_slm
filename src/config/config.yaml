@@ -1,0 +1,17 @@
+# This is the configuration file for the project
+# Everything you can tweak it's here
+
+num_cores: 8
+output_dir: "data/processed"
+
+dataset:
+  name: "markod0925/TinyStories-Italian"
+
+tokenizer:
+  name: "sapienzanlp/Minerva-7B-base-v1.0"
+  max_length: 512
+  
+hydra:
+  run:
+    dir: .
+  output_subdir: null
