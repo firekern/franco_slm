@@ -1,7 +1,8 @@
 import hydra
 from omegaconf import DictConfig, OmegaConf
 import logging
-import tqdm
+from tqdm.auto import tqdm
+
 import os
 
 from datasets import load_dataset
@@ -10,40 +11,53 @@ import numpy as np
 
 logger = logging.getLogger(__name__)
 
-# https://huggingface.co/datasets/markod0925/TinyStories-Italian/viewer/default/train?row=0
+# https://colab.research.google.com/drive/1OHPQf3iM9RD9g2wZRTj7nf8fs3pgbnF4?usp=sharing#scrollTo=vFkgAjyMR8fa
+# nanochat karpathy
 
 @hydra.main(config_path="../config", config_name="config.yaml")
-def prepare(cfg: DictConfig):
-    
-    dataset = load_dataset(cfg.dataset.name)
-
-    # cut the dataset to the first 100k samples for faster processing
-    tokenizer = AutoTokenizer.from_pretrained(cfg.tokenizer.name)
+def prepare_data(cfg: DictConfig):
 
     def _tokenize_function(examples):
-        return tokenizer(examples["text"], truncation=True, max_length=cfg.tokenizer.max_length)
+        tokenized = tokenizer(examples["text"], truncation=False)
 
-    tokenized_dataset = dataset.map(_tokenize_function, batched=True, num_proc=cfg.num_cores, desc="Tokenizing dataset")
-    tokenized_dataset = tokenized_dataset.remove_columns(["text"])
+        eos_id = tokenizer.eos_token_id
+        tokenized["input_ids"] = [
+            seq + [eos_id] for seq in tokenized["input_ids"]
+        ]
+        return {'input_ids': tokenized["input_ids"], 'len': [len(seq) for seq in tokenized["input_ids"]]}
+
+    dataset = load_dataset(cfg.datasets.name)
+    tokenizer = AutoTokenizer.from_pretrained(cfg.tokenizer.name)
+    tokenized_dataset = dataset.map(_tokenize_function, batched=True, num_proc=cfg.datasets.num_workers)
+
+    # create file if not exists
+
+    if not os.path.exists(os.path.join(cfg.datasets.output_dir, cfg.datasets.name.split("/")[1])):
+        os.makedirs(os.path.join(cfg.datasets.output_dir, cfg.datasets.name.split("/")[1]))
+    else:
+        # delete if exists
+        for file in os.listdir(os.path.join(cfg.datasets.output_dir, cfg.datasets.name.split("/")[1])):
+            os.remove(os.path.join(cfg.datasets.output_dir, cfg.datasets.name.split("/")[1], file))
 
     for split, ds in tokenized_dataset.items():
-        path = f"{cfg.output_dir}/{cfg.dataset.name}/{split}.bin"
-        os.makedirs(os.path.dirname(path), exist_ok=True)
-
-        tot_tokens = sum(len(x["input_ids"]) for x in ds)
-        logger.info(f"Saving {split} split with {len(ds)} samples and {tot_tokens} tokens to {path}")
-
-        arr = np.memmap(path, dtype=np.uint16, mode="w+", shape=(tot_tokens, ))
+        arr_len = np.sum(ds['len'], dtype=np.uint64)
+        filename = os.path.join(cfg.datasets.output_dir,  cfg.datasets.name.split("/")[1], f"{split}.bin")
+        _dtype = np.uint16
+        arr = np.memmap(filename, dtype=_dtype, mode='w+', shape=(arr_len,))
 
         idx = 0
-        for seq in tqdm.tqdm(ds["input_ids"], desc=f"Saving {split} split"):
-            arr[idx:idx+len(seq)] = seq
-            idx += len(seq)
+        for batch_idx in tqdm(range(cfg.data_prep.total_batches), desc=f"Processing {split} split"):
+            batch = ds.shard(num_shards=cfg.data_prep.total_batches, index=batch_idx, contiguous=True).with_format("numpy")
+            arr_batch = np.concatenate(batch['input_ids'])
+            arr[idx:idx+len(arr_batch)] = arr_batch
+            idx += len(arr_batch)
 
         arr.flush()
-
-    logger.info("We chill babe.")
-
+    
+    # total tokens 
+    total_tokens = sum(np.sum(ds['len'], dtype=np.uint64) for ds in tokenized_dataset.values())
+    logger.info(f"Total tokens in dataset: {total_tokens}")
+    logger
 
 if __name__ == "__main__":
-    prepare()
+    prepare_data()

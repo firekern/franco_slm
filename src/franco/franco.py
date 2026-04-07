@@ -12,12 +12,9 @@ class EmbeddingsLayers(nn.Module):
     def __init__(self, vocab_size: int, d_model: int, dropout: float = 0.1):
         super().__init__()
 
-        # we can't use sparse = True Adam don't support sparse gradients
         self.d_model = d_model
-
         self.embed = nn.Embedding(vocab_size, d_model) # this is a lookup table practically, it will be trained to learn the embeddings for each token in the vocab
         self.dropout = nn.Dropout(dropout) # generalization 
-
 
     def forward(self, x: torch.Tensor) -> torch.Tensor:
         return self.dropout(self.embed(x))
@@ -52,7 +49,7 @@ class DecoderBlock(nn.Module):
 
         self.dropout = nn.Dropout(dropout)
 
-    def forward(self, x: torch.Tensor, cos: torch.Tensor, sin: torch.Tensor) -> torch.Tensor:
+    def forward(self, x: torch.Tensor) -> torch.Tensor:
 
         B, T, C = x.shape
 
@@ -63,10 +60,6 @@ class DecoderBlock(nn.Module):
         Q = self.W_Q(x_norm).view(B,T,self.n_heads,self.head_dim).transpose(1,2)
         K = self.W_K(x_norm).view(B,T,self.n_heads,self.head_dim).transpose(1,2)
         V = self.W_V(x_norm).view(B,T,self.n_heads,self.head_dim).transpose(1,2)
-
-        # Roping Q,K  | cos -sin |
-        #             | cos  sin |
-
         Q = self.rope(Q)
         K = self.rope(K)
 
@@ -76,11 +69,12 @@ class DecoderBlock(nn.Module):
                                                   dropout_p = 
                                                      self.dropout.p 
                                                   if self.training else 0.0)
+
         
         attn_out = attn_out.transpose(1, 2).contiguous().view(B, T, C)
         attn_out = self.W_O(attn_out)
 
-        x = x + self.dropout(attn_out) # residual 1
+        x = x + self.dropout(attn_out)
 
         x_norm = self.norm2(x)
         x_ff = (F.silu(self.W1(x_norm)) * self.W3(x_norm))
@@ -91,7 +85,17 @@ class DecoderBlock(nn.Module):
         return x
 
 class FRANCO(nn.Module):
-    def __init__(self, vocab_size, d_model, n_layers, n_head, d_ff, eps_rms_norm, dropout, seq_len = 512):
+    def __init__(self, vocab_size,
+                       d_model, 
+                       n_layers, 
+                       n_head, 
+                       d_ff, 
+                       eps_rms_norm, 
+                       dropout, 
+                       seq_len = 512,
+                       mods = "vanilla" # this is for future use for attention and ff variants
+                ):
+        
         super().__init__()
 
         self.embedding = EmbeddingsLayers(vocab_size, d_model, dropout)
@@ -106,13 +110,9 @@ class FRANCO(nn.Module):
 
 
     def forward(self, idx, targets = None):
-
         x = self.embedding(idx)
-
         for block in self.blocks:
             x = block(x)
-
-        # logits outputs
 
         logits = self.lm_head(self.norm_f(x))
 

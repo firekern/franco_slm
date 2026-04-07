@@ -1,16 +1,30 @@
 # This is the configuration file for the project
 # Everything you can tweak it's here
 
-num_cores: 8
 output_dir: "data/processed"
 
-dataset:
+wandb:
+ run_name: testing 
+ project: franco_slm
+ comment: v1
+
+datasets:
   name: "markod0925/TinyStories-Italian"
+  num_workers: 8
+  output_dir: data/
 
 tokenizer:
   name: "sapienzanlp/Minerva-7B-base-v1.0"
   max_length: 512
-  
+
+stages:
+  data_prep: true
+  train: false
+  evaluate: false
+
+data_prep:
+  total_batches: 1024
+
 hydra:
   run:
     dir: .
