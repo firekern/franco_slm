@@ -111,7 +111,7 @@ class FRANCO(nn.Module):
         ])
 
         self.norm_f = nn.RMSNorm(d_model, eps = eps_rms_norm)
-        self.lm_head = nn.linear(d_model, vocab_size, bias = False)
+        self.lm_head = nn.Linear(d_model, vocab_size, bias = False)
         self.lm_head.weight = self.embedding.embed.weight
 
 
