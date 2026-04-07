@@ -8,7 +8,7 @@ from torchtune.modules import RotaryPositionalEmbeddings as RotaryEmBEDDIES
 
 logger = logging.getLogger(__name__)
 
-class EmbebeddiesLayers(nn.Module):
+class EmbeddiesLayers(nn.Module):
     def __init__(self, vocab_size: int, d_model: int, dropout: float = 0.1):
         super().__init__()
 
@@ -20,7 +20,13 @@ class EmbebeddiesLayers(nn.Module):
         return self.dropout(self.embed(x))
 
 class DecoderBlock(nn.Module):
-    def __init__(self, d_model: int, n_heads: int, d_ff: int, max_seq_len: int, dropout: float = 0.1, eps: float = 1e-6):
+    def __init__(self, d_model: int, 
+                       n_heads: int, 
+                       d_ff: int, 
+                       max_seq_len: int, 
+                       dropout: float = 0.1, 
+                       eps: float = 1e-6
+                ):
         super().__init__()
 
         assert d_model % n_heads == 0 # the heads must be a divisor of d_models
@@ -85,20 +91,20 @@ class DecoderBlock(nn.Module):
         return x
 
 class FRANCO(nn.Module):
-    def __init__(self, vocab_size,
-                       d_model, 
-                       n_layers, 
-                       n_head, 
-                       d_ff, 
-                       eps_rms_norm, 
-                       dropout, 
-                       seq_len = 512,
-                       mods = "vanilla" # this is for future use for attention and ff variants
+    def __init__(self, vocab_size: int,
+                       d_model: int, 
+                       n_layers: int, 
+                       n_head: int, 
+                       d_ff: int, 
+                       eps_rms_norm: float, 
+                       dropout: float, 
+                       seq_len: int = 512,
+                       mods: str = "vanilla" # this is for future use for attention and ff variants
                 ):
         
         super().__init__()
 
-        self.embedding = EmbebeddiesLayers(vocab_size, d_model, dropout)
+        self.embedding = EmbeddiesLayers(vocab_size, d_model, dropout)
         self.blocks = nn.ModuleList([
             DecoderBlock(d_model, n_head, d_ff, seq_len,  dropout, eps_rms_norm)
             for _ in range(n_layers)
