@@ -4,11 +4,11 @@ import logging
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
-from torchtune.modules import RotaryPositionalEmbeddings
+from torchtune.modules import RotaryPositionalEmbeddings as RotaryEmBEDDIES
 
 logger = logging.getLogger(__name__)
 
-class EmbeddingsLayers(nn.Module):
+class EmbebeddiesLayers(nn.Module):
     def __init__(self, vocab_size: int, d_model: int, dropout: float = 0.1):
         super().__init__()
 
@@ -27,7 +27,7 @@ class DecoderBlock(nn.Module):
         self.n_heads = n_heads
         self.head_dim = d_model // n_heads
 
-        self.rope  = RotaryPositionalEmbeddings(
+        self.rope  = RotaryEmBEDDIES(
             dim=self.head_dim,
             max_seq_len=max_seq_len
         )
@@ -98,7 +98,7 @@ class FRANCO(nn.Module):
         
         super().__init__()
 
-        self.embedding = EmbeddingsLayers(vocab_size, d_model, dropout)
+        self.embedding = EmbebeddiesLayers(vocab_size, d_model, dropout)
         self.blocks = nn.ModuleList([
             DecoderBlock(d_model, n_head, d_ff, seq_len,  dropout, eps_rms_norm)
             for _ in range(n_layers)
