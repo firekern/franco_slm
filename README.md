@@ -45,3 +45,12 @@ Btw i forgot to say, that we stole the tokenizer from [Minerva](https://huggingf
 Now, I have to do the attention mechanism, this is going to be though.
 
 There is a lot to write there about the attention, that I wrote by mixxing stuff from claude, gemini and 3 youtube videos. I'm going to write it later.
+
+**\[08/04/2026\]:** 
+
+To be honest, I have done other stuff lately. Yesterday with 8 hours of effort we did it! We finished FRANCO, but only in a vanilla setting. 
+The beautiful thing is the understanding that now I have of attention. It's something that is stupidly intelligent.
+Attention can be thought of as a graph, as a filter, as a construction of an inner product space.
+The fact that this thing can be seen in 300 perspectives is really amazing. This can lead to a lot of interesting stuff. 
+Multi-head splitting is another aspect that I did not understand, but now I think I get it. 
+It's a projection that breaks down the components of the higher-dimensional vectors that represent the the tokens.
